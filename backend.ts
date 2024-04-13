@@ -1,5 +1,7 @@
 import { GenezioDeploy, GenezioMethod } from "@genezio/types";
 import fetch from "node-fetch";
+import pg from "pg";
+const { Pool } = pg;
 
 type SuccessResponse = {
   status: "success";
@@ -16,6 +18,11 @@ type ErrorResponse = {
 @GenezioDeploy()
 export class BackendService {
   constructor() {}
+
+  pool = new Pool({
+    connectionString: process.env["SOLVEIT_DATABASE_URL"],
+    ssl: true,
+  });
 
   @GenezioMethod()
   async hello(name: string): Promise<string> {
@@ -87,5 +94,14 @@ export class BackendService {
       // @ts-expect-error
       return `Failed to send the request: ${error.message}`;
     }
+  }
+
+  @GenezioMethod()
+  async getCredits(userId: string) {
+    const result = await this.pool.query(
+      "select * from credits where userId = $1",
+      [userId]
+    );
+    return JSON.stringify(result.rows);
   }
 }

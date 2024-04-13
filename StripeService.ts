@@ -1,9 +1,8 @@
-
 import {
   GenezioDeploy,
-  GenezioMethod,
   GenezioHttpRequest,
   GenezioHttpResponse,
+  GenezioMethod,
 } from "@genezio/types";
 import Stripe from "stripe";
 // Use the Stripe API Key clientSecret to initialize the Stripe Object
@@ -31,5 +30,30 @@ export class StripeService {
     });
 
     return stripePromise.url || "";
+  }
+
+  @GenezioMethod({ type: "http" })
+  async webhook(req: GenezioHttpRequest): Promise<GenezioHttpResponse> {
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.rawBody,
+        req.headers["stripe-signature"],
+        process.env.STRIPE_WEBHOOK_SECRET!
+      );
+    } catch (err) {
+      return { statusCode: "400", body: "Webhook Error" };
+    }
+
+    // Handle the checkout.session.completed event
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      console.log("Fulfilling order", session);
+
+      // TODO: your own custom fulfillment process
+    }
+
+    return { statusCode: "200", body: "Success" };
   }
 }
