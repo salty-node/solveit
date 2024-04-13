@@ -6,6 +6,7 @@ import {
 } from "@genezio/types";
 import Stripe from "stripe";
 import pg from "pg";
+
 const { Pool } = pg;
 // Use the Stripe API Key clientSecret to initialize the Stripe Object
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -59,10 +60,10 @@ export class StripeService {
       console.log("Fulfilling order", session);
 
       // TODO: your own custom fulfillment process
-      // await this.pool.query(
-      //     "update credits set credits = credits + 10 where userId = $1",
-      //     ["efa7b4df-59bf-4da8-9979-0afddd165f53"]
-      // );
+      await this.pool.query(
+        "update credits set credits = credits + 10 where userId = $1",
+        ["efa7b4df-59bf-4da8-9979-0afddd165f53"]
+      );
     }
 
     return { statusCode: "200", body: "Success" };
