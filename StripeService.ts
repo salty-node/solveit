@@ -6,7 +6,8 @@ import {
 } from "@genezio/types";
 import Stripe from "stripe";
 import pg from "pg";
-const { Pool } = pg;
+
+const {Pool} = pg;
 // Use the Stripe API Key clientSecret to initialize the Stripe Object
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -18,7 +19,7 @@ export class StripeService {
         ssl: true,
     });
 
-    async createCheckoutSession(): Promise<string> {
+    async createCheckoutSession(userId: string): Promise<string> {
         const stripePromise = await stripe.checkout.sessions.create({
             line_items: [
                 {
@@ -35,6 +36,9 @@ export class StripeService {
             mode: "payment",
             success_url: `${process.env.FRONTEND_URL}?success=true`,
             cancel_url: `${process.env.FRONTEND_URL}?canceled=true`,
+            metadata: {
+                userId: userId,
+            },
         });
 
         return stripePromise.url || "";
@@ -60,10 +64,15 @@ export class StripeService {
             console.log("Fulfilling order", session);
 
             // TODO: your own custom fulfillment process
-            await this.pool.query(
-                "update credits set credits = credits + 10 where userId = $1",
-                ["efa7b4df-59bf-4da8-9979-0afddd165f53"]
-            );
+
+            // @ts-ignore
+            const userId = session.metadata.userId;
+            // @ts-ignore
+            const backendService = new BackendService();
+            await backendService.increaseCredits(userId);
+
+            return {statusCode: "200", body: "Order fulfilled"};
+
         }
 
         return {statusCode: "200", body: "Success"};
