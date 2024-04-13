@@ -97,7 +97,33 @@ export class BackendService {
   }
 
   @GenezioMethod()
-  async getCredits(userId: string) {
+  async getCredits(userId: string): Promise<string> {
+    const result = await this.pool.query(
+      "select * from credits where userId = $1",
+      [userId]
+    );
+    return JSON.stringify(result.rows);
+  }
+
+  @GenezioMethod()
+  async increaseCredits(userId: string): Promise<string> {
+    await this.pool.query(
+      "update credits set credits = credits + 10 where userId = $1",
+      [userId]
+    );
+    const result = await this.pool.query(
+      "select * from credits where userId = $1",
+      [userId]
+    );
+    return JSON.stringify(result.rows);
+  }
+
+  @GenezioMethod()
+  async decreaseCredits(userId: string): Promise<string> {
+    await this.pool.query(
+      "update credits set credits = credits - 1 where userId = $1",
+      [userId]
+    );
     const result = await this.pool.query(
       "select * from credits where userId = $1",
       [userId]
