@@ -39,7 +39,7 @@ export class BackendService {
   }
 
   @GenezioMethod()
-  async askOpenAI(): Promise<string> {
+  async askOpenAI(imageUrl: string): Promise<string> {
     const endpoint = "https://api.openai.com/v1/chat/completions";
     const apiKey = process.env.OPENAI_SECRET_KEY;
     const headers = {
@@ -59,7 +59,7 @@ export class BackendService {
             {
               type: "image_url",
               image_url: {
-                url: "https://infomatrix.ro/uploads/661a81a2381e9.png",
+                url: imageUrl,
               },
             },
           ],
