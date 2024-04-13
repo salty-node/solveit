@@ -8,8 +8,10 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@genezio/types": "^1.0.14",
-        "node-fetch": "^3.3.2"
+        "@genezio/types": "^1.0.18",
+        "@types/pg": "^8.11.5",
+        "node-fetch": "^3.3.2",
+        "pg": "^8.11.5"
     },
     "prettier": {
         "tabWidth": 2
