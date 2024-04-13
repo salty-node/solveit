@@ -58,7 +58,7 @@ export class StripeService {
             return {statusCode: "400", body: "Webhook Error"};
         }
 
-        // Handle the checkout.session.completed event
+        // Handle the checkout.sessifon.completed event
         if (event.type === "checkout.session.completed") {
             const session = event.data.object;
             console.log("Fulfilling order", session);
