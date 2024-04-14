@@ -35,12 +35,10 @@ export class StripeService {
       mode: "payment",
       success_url: `${process.env.FRONTEND_URL}?success=true`,
       cancel_url: `${process.env.FRONTEND_URL}?canceled=true`,
+      metadata: {
+        userId: userId,
+      },
     });
-
-    await this.pool.query(
-      "update credits set credits = credits + 10 where userId = $1",
-      [userId]
-    );
 
     return stripePromise.url || "";
   }
@@ -63,6 +61,10 @@ export class StripeService {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       console.log("Fulfilling order", session);
+      await this.pool.query(
+        "update credits set credits = credits + 10 where userId = $1",
+        [session.metadata!.userId]
+      );
 
       console.log("Order fulfilled successfully"); // Log when the order is fulfilled successfully
       return { statusCode: "200", body: "Order fulfilled" };
