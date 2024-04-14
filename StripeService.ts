@@ -18,7 +18,7 @@ export class StripeService {
     ssl: true,
   });
 
-  async createCheckoutSession(): Promise<string> {
+  async createCheckoutSession(userId: string): Promise<string> {
     const stripePromise = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -36,6 +36,11 @@ export class StripeService {
       success_url: `${process.env.FRONTEND_URL}?success=true`,
       cancel_url: `${process.env.FRONTEND_URL}?canceled=true`,
     });
+
+    await this.pool.query(
+      "update credits set credits = credits + 10 where userId = $1",
+      [userId]
+    );
 
     return stripePromise.url || "";
   }
