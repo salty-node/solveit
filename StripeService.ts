@@ -18,7 +18,7 @@ export class StripeService {
     ssl: true,
   });
 
-  async createCheckoutSession(userId: string): Promise<string> {
+  async createCheckoutSession(): Promise<string> {
     const stripePromise = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -35,9 +35,6 @@ export class StripeService {
       mode: "payment",
       success_url: `${process.env.FRONTEND_URL}?success=true`,
       cancel_url: `${process.env.FRONTEND_URL}?canceled=true`,
-      metadata: {
-        userId: userId,
-      },
     });
 
     return stripePromise.url || "";
